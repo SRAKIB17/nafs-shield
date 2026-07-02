@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,11 +44,14 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Park
@@ -83,9 +87,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -116,6 +122,7 @@ import com.rakib.nafsshield.data.HabitViewModel
 import com.rakib.nafsshield.ui.theme.NafsShieldTheme
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -547,7 +554,7 @@ fun DashboardScreen(
                     habit = habit,
                     onRelapse = { habitToRelapse = habit },
                     onCheckIn = { onCheckIn(habit) },
-                    onDelete = { habitToDelete = habit },
+                    onDelete = { onDelete(habit) },
                     strings = strings
                 )
             }
@@ -670,20 +677,36 @@ fun DailyCheckInCard(onCheckIn: (String) -> Unit, strings: AppStrings) {
     }
 }
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.lerp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, strings: AppStrings) {
     var step by remember { mutableIntStateOf(1) }
     var habitName by remember { mutableStateOf("") }
     val nameSuggestions = listOf("Masturbation", "Smoking", "Gaming", "Social Media", "Junk Food")
+    
     val availableIcons = listOf(
         Icons.Default.Psychology, Icons.Default.Shield, Icons.Default.Star,
         Icons.Default.Park, Icons.Default.MilitaryTech, Icons.Default.EmojiEvents,
-        Icons.Default.FitnessCenter, Icons.Default.Timer, Icons.Default.WaterDrop
+        Icons.Default.FitnessCenter, Icons.Default.Timer, Icons.Default.WaterDrop,
+        Icons.Default.SmokeFree, Icons.Default.Computer, Icons.Default.PhoneAndroid,
+        Icons.Default.AutoAwesome, Icons.Default.Spa, Icons.Default.LocalDrink,
+        Icons.Default.DirectionsWalk, Icons.Default.EditNote, Icons.Default.Terrain
     )
+    
     var selectedIcon by remember { mutableStateOf(availableIcons[0]) }
-    var startDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var startDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
     val targetOptions = listOf(
         30 to "৩০ দিন", 90 to "৯০ দিন", 180 to "১৮০ দিন",
         365 to "১ বছর", 730 to "২ বছর", 1460 to "৪ বছর",
@@ -691,91 +714,266 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
     )
     var selectedTarget by remember { mutableIntStateOf(90) }
 
+    val infiniteTransition = rememberInfiniteTransition(label = "Background")
+    val animValue by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(10000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "GradientAnim"
+    )
+
     BackHandler { if (step > 1) step-- else onBack() }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(strings.addHabit, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { if (step > 1) step-- else onBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+    Box(modifier = Modifier.fillMaxSize().background(
+        Brush.linearGradient(
+            colors = listOf(
+                lerp(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primaryContainer, animValue * 0.2f),
+                lerp(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.secondaryContainer, (1f - animValue) * 0.2f)
             )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).fillMaxSize().padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("${strings.stepIndicator} $step / 4", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(24.dp))
+        )
+    )) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(strings.addHabit, fontWeight = FontWeight.Black) },
+                    navigationIcon = {
+                        IconButton(onClick = { if (step > 1) step-- else onBack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier.padding(padding).fillMaxSize().padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Professional Step Progress
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    repeat(4) { index ->
+                        val isActive = step > index
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(6.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (isActive) MaterialTheme.colorScheme.primary 
+                                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                )
+                        )
+                    }
+                }
 
-            when (step) {
-                1 -> {
-                    Text(strings.habitName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(value = habitName, onValueChange = { habitName = it }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        nameSuggestions.take(3).forEach { suggestion ->
-                            FilterChip(selected = habitName == suggestion, onClick = { habitName = suggestion }, label = { Text(suggestion) })
-                        }
-                    }
-                }
-                2 -> {
-                    Text(strings.selectIcon, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    LazyVerticalGrid(columns = GridCells.Fixed(3), verticalArrangement = Arrangement.spacedBy(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        items(availableIcons) { icon ->
-                            Box(modifier = Modifier.size(80.dp).clip(RoundedCornerShape(16.dp)).background(if (selectedIcon == icon) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant).clickable { selectedIcon = icon }.padding(16.dp), contentAlignment = Alignment.Center) {
-                                Icon(imageVector = icon, contentDescription = null, tint = if (selectedIcon == icon) MaterialTheme.colorScheme.primary else Color.Gray, modifier = Modifier.size(32.dp))
+                AnimatedContent(
+                    targetState = step,
+                    transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(500)) },
+                    label = "StepContent",
+                    modifier = Modifier.weight(1f)
+                ) { currentStep ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        when (currentStep) {
+                            1 -> {
+                                Text(strings.habitName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Spacer(modifier = Modifier.height(24.dp))
+                                OutlinedTextField(
+                                    value = habitName, 
+                                    onValueChange = { habitName = it }, 
+                                    modifier = Modifier.fillMaxWidth(), 
+                                    shape = RoundedCornerShape(20.dp),
+                                    label = { Text("What are you recovering from?") },
+                                    singleLine = true
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(), 
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    nameSuggestions.take(3).forEach { suggestion ->
+                                        FilterChip(
+                                            selected = habitName == suggestion, 
+                                            onClick = { habitName = suggestion }, 
+                                            label = { Text(suggestion) },
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                    }
+                                }
                             }
-                        }
-                    }
-                }
-                3 -> {
-                    Text(strings.startDate, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(32.dp))
-                    val dateFormatted = SimpleDateFormat("dd MMMM, yyyy", Locale.getDefault()).format(Date(startDate))
-                    Card(modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-                        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.CalendarToday, null)
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(text = dateFormatted, style = MaterialTheme.typography.bodyLarge)
-                        }
-                    }
-                }
-                4 -> {
-                    Text(strings.selectTarget, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        targetOptions.forEach { (days, label) ->
-                            Card(modifier = Modifier.fillMaxWidth().clickable { selectedTarget = days }, colors = CardDefaults.cardColors(containerColor = if (selectedTarget == days) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)) {
-                                Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                    Text(label, fontWeight = FontWeight.Bold, color = if (selectedTarget == days) Color.White else Color.Unspecified)
+                            2 -> {
+                                Text(strings.selectIcon, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Spacer(modifier = Modifier.height(24.dp))
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(4), 
+                                    verticalArrangement = Arrangement.spacedBy(16.dp), 
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(availableIcons) { icon ->
+                                        val isSelected = selectedIcon == icon
+                                        Box(
+                                            modifier = Modifier
+                                                .aspectRatio(1f)
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(
+                                                    if (isSelected) MaterialTheme.colorScheme.primary 
+                                                    else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                                                )
+                                                .clickable { selectedIcon = icon }
+                                                .padding(12.dp), 
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = icon, 
+                                                contentDescription = null, 
+                                                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.primary, 
+                                                modifier = Modifier.size(32.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            3 -> {
+                                Text(strings.startDate, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Spacer(modifier = Modifier.height(32.dp))
+                                val dateTimeFormatted = SimpleDateFormat("dd MMMM, yyyy  •  hh:mm a", Locale.getDefault()).format(Date(startDateMillis))
+                                
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true }, 
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                ) {
+                                    Row(modifier = Modifier.padding(28.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.CalendarToday, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+                                        Spacer(modifier = Modifier.width(20.dp))
+                                        Text(text = dateTimeFormatted, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Text("The counter will start from this exact second", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                            }
+                            4 -> {
+                                Text(strings.selectTarget, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Spacer(modifier = Modifier.height(24.dp))
+                                LazyColumn(
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(targetOptions) { (days, label) ->
+                                        val isSelected = selectedTarget == days
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth().clickable { selectedTarget = days }, 
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary 
+                                                                else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                                            ),
+                                            elevation = CardDefaults.cardElevation(defaultElevation = if(isSelected) 8.dp else 0.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(20.dp).fillMaxWidth(), 
+                                                horizontalArrangement = Arrangement.SpaceBetween, 
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    label, 
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.ExtraBold, 
+                                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+                                                )
+                                                if (isSelected) Icon(Icons.Default.Check, null, tint = Color.White)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = { if (step < 4) step++ else onHabitAdded(RecoveryHabit(name = habitName, icon = selectedIcon, targetDays = selectedTarget, color = Color(0xFF6366F1), startDate = startDate)) }, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp), enabled = step != 1 || habitName.isNotBlank()) {
-                Text(if (step < 4) strings.nextStep else strings.start, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Button(
+                    onClick = { 
+                        if (step < 4) step++ 
+                        else onHabitAdded(RecoveryHabit(name = habitName, icon = selectedIcon, targetDays = selectedTarget, color = Color(0xFF6366F1), startDate = startDateMillis)) 
+                    }, 
+                    modifier = Modifier.fillMaxWidth().height(64.dp), 
+                    shape = RoundedCornerShape(20.dp), 
+                    enabled = step != 1 || habitName.isNotBlank(),
+                    elevation = ButtonDefaults.buttonColors().let { ButtonDefaults.elevatedButtonElevation(defaultElevation = 8.dp) }
+                ) {
+                    Text(if (step < 4) strings.nextStep else strings.start, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+                }
             }
         }
     }
 
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
-        DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = { TextButton(onClick = { startDate = datePickerState.selectedDateMillis ?: startDate; showDatePicker = false }) { Text("Confirm") } }) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = startDateMillis)
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false }, 
+            confirmButton = { 
+                TextButton(onClick = { 
+                    val selectedDate = datePickerState.selectedDateMillis ?: startDateMillis
+                    val calendar = Calendar.getInstance().apply {
+                        timeInMillis = selectedDate
+                        val currentCal = Calendar.getInstance().apply { timeInMillis = startDateMillis }
+                        set(Calendar.HOUR_OF_DAY, currentCal.get(Calendar.HOUR_OF_DAY))
+                        set(Calendar.MINUTE, currentCal.get(Calendar.MINUTE))
+                    }
+                    startDateMillis = calendar.timeInMillis
+                    showDatePicker = false
+                    showTimePicker = true 
+                }) { Text("Next: Time") } 
+            }
+        ) {
             DatePicker(state = datePickerState)
         }
     }
+
+    if (showTimePicker) {
+        val calendar = Calendar.getInstance().apply { timeInMillis = startDateMillis }
+        val timePickerState = rememberTimePickerState(
+            initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+            initialMinute = calendar.get(Calendar.MINUTE)
+        )
+        
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val cal = Calendar.getInstance().apply {
+                        timeInMillis = startDateMillis
+                        set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                        set(Calendar.MINUTE, timePickerState.minute)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }
+                    startDateMillis = cal.timeInMillis
+                    showTimePicker = false
+                }) { Text("Confirm") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
+    }
 }
+
 
 @Composable
 fun MilestoneCelebrationDialog(
@@ -967,12 +1165,38 @@ fun CheckInHistoryScreen(
     }
 }
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.filled.DirectionsWalk
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.LocalDrink
+@Composable
+fun CheckInHistoryItem(checkIn: CheckInEntity) {
+    val date = SimpleDateFormat("dd MMMM, yyyy • hh:mm a", Locale.getDefault()).format(Date(checkIn.timestamp))
+    val emoji = when (checkIn.mood) {
+        "ভালো", "Good" -> "😊"
+        "মোটামুটি", "Neutral" -> "😐"
+        "খারাপ", "Bad" -> "😞"
+        "Urge" -> "😖"
+        "Relapse" -> "😔"
+        else -> "🤔"
+    }
 
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(emoji, fontSize = 28.sp)
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(checkIn.mood, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
+                Text(date, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UrgeEmergencyScreen(onBack: () -> Unit, strings: AppStrings) {
     var timerSeconds by remember { mutableIntStateOf(60) }
@@ -1076,4 +1300,3 @@ fun UrgeActionCard(modifier: Modifier, icon: ImageVector, label: String) {
         }
     }
 }
-
