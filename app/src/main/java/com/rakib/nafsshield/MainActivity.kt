@@ -6,12 +6,21 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -106,9 +115,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -223,6 +235,14 @@ interface AppStrings {
     val walkReminder: String
     val journalReminder: String
     val stayStrong: String
+    val selectColor: String
+    val target30Days: String
+    val target90Days: String
+    val target180Days: String
+    val target1Year: String
+    val target2Years: String
+    val target4Years: String
+    val targetUnlimited: String
 }
 
 object BanglaStrings : AppStrings {
@@ -277,6 +297,14 @@ object BanglaStrings : AppStrings {
     override val walkReminder = "৫ মিনিট হাঁটাহাঁটি করুন"
     override val journalReminder = "আপনার অনুভূতি লিখে রাখুন"
     override val stayStrong = "অটল থাকুন"
+    override val selectColor = "রঙ নির্বাচন করুন"
+    override val target30Days = "৩০ দিন"
+    override val target90Days = "৯০ দিন"
+    override val target180Days = "১৮০ দিন"
+    override val target1Year = "১ বছর"
+    override val target2Years = "২ বছর"
+    override val target4Years = "৪ বছর"
+    override val targetUnlimited = "আনলিমিটেড"
 }
 
 object EnglishStrings : AppStrings {
@@ -331,6 +359,14 @@ object EnglishStrings : AppStrings {
     override val walkReminder = "Take a 5-minute walk"
     override val journalReminder = "Write down your feelings"
     override val stayStrong = "Stay Strong"
+    override val selectColor = "Choose Color"
+    override val target30Days = "30 Days"
+    override val target90Days = "90 Days"
+    override val target180Days = "180 Days"
+    override val target1Year = "1 Year"
+    override val target2Years = "2 Years"
+    override val target4Years = "4 Years"
+    override val targetUnlimited = "Unlimited"
 }
 
 enum class Screen {
@@ -677,15 +713,6 @@ fun DailyCheckInCard(onCheckIn: (String) -> Unit, strings: AppStrings) {
     }
 }
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.lerp
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, strings: AppStrings) {
@@ -702,15 +729,26 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
         Icons.Default.DirectionsWalk, Icons.Default.EditNote, Icons.Default.Terrain
     )
     
+    val availableColors = listOf(
+        Color(0xFF6366F1), Color(0xFFEC4899), Color(0xFF10B981),
+        Color(0xFFF59E0B), Color(0xFF3B82F6), Color(0xFF8B5CF6),
+        Color(0xFFEF4444), Color(0xFF06B6D4), Color(0xFF71717A)
+    )
+
     var selectedIcon by remember { mutableStateOf(availableIcons[0]) }
+    var selectedColor by remember { mutableStateOf(availableColors[0]) }
     var startDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
     val targetOptions = listOf(
-        30 to "৩০ দিন", 90 to "৯০ দিন", 180 to "১৮০ দিন",
-        365 to "১ বছর", 730 to "২ বছর", 1460 to "৪ বছর",
-        9999 to "Unlimited"
+        30 to strings.target30Days, 
+        90 to strings.target90Days, 
+        180 to strings.target180Days,
+        365 to strings.target1Year, 
+        730 to strings.target2Years, 
+        1460 to strings.target4Years,
+        9999 to strings.targetUnlimited
     )
     var selectedTarget by remember { mutableIntStateOf(90) }
 
@@ -730,8 +768,8 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
     Box(modifier = Modifier.fillMaxSize().background(
         Brush.linearGradient(
             colors = listOf(
-                lerp(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primaryContainer, animValue * 0.2f),
-                lerp(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.secondaryContainer, (1f - animValue) * 0.2f)
+                lerp(MaterialTheme.colorScheme.surface, selectedColor.copy(alpha = 0.15f), animValue),
+                lerp(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant, (1f - animValue) * 0.2f)
             )
         )
     )) {
@@ -758,16 +796,17 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                     modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    repeat(4) { index ->
+                    repeat(5) { index ->
                         val isActive = step > index
+                        val barWidth by animateDpAsState(if (step == index + 1) 24.dp else 8.dp, label = "BarWidth")
                         Box(
                             modifier = Modifier
-                                .weight(1f)
                                 .height(6.dp)
+                                .width(barWidth)
                                 .clip(CircleShape)
                                 .background(
-                                    if (isActive) MaterialTheme.colorScheme.primary 
-                                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    if (isActive) selectedColor 
+                                    else selectedColor.copy(alpha = 0.2f)
                                 )
                         )
                     }
@@ -822,12 +861,14 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                 ) {
                                     items(availableIcons) { icon ->
                                         val isSelected = selectedIcon == icon
+                                        val iconScale by animateFloatAsState(if (isSelected) 1.2f else 1f, label = "IconScale")
                                         Box(
                                             modifier = Modifier
                                                 .aspectRatio(1f)
+                                                .scale(iconScale)
                                                 .clip(RoundedCornerShape(20.dp))
                                                 .background(
-                                                    if (isSelected) MaterialTheme.colorScheme.primary 
+                                                    if (isSelected) selectedColor 
                                                     else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
                                                 )
                                                 .clickable { selectedIcon = icon }
@@ -837,7 +878,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                             Icon(
                                                 imageVector = icon, 
                                                 contentDescription = null, 
-                                                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.primary, 
+                                                tint = if (isSelected) Color.White else selectedColor, 
                                                 modifier = Modifier.size(32.dp)
                                             )
                                         }
@@ -845,6 +886,33 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                 }
                             }
                             3 -> {
+                                Text(strings.selectColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Spacer(modifier = Modifier.height(24.dp))
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(3),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(availableColors) { color ->
+                                        val isSelected = selectedColor == color
+                                        val circleScale by animateFloatAsState(if (isSelected) 1.2f else 1f, label = "CircleScale")
+                                        Box(
+                                            modifier = Modifier
+                                                .aspectRatio(1f)
+                                                .scale(circleScale)
+                                                .clip(CircleShape)
+                                                .background(color)
+                                                .clickable { selectedColor = color }
+                                                .padding(12.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (isSelected) Icon(Icons.Default.Check, null, tint = Color.White)
+                                        }
+                                    }
+                                }
+                            }
+                            4 -> {
                                 Text(strings.startDate, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
                                 Spacer(modifier = Modifier.height(32.dp))
                                 val dateTimeFormatted = SimpleDateFormat("dd MMMM, yyyy  •  hh:mm a", Locale.getDefault()).format(Date(startDateMillis))
@@ -856,7 +924,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                                 ) {
                                     Row(modifier = Modifier.padding(28.dp), verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.CalendarToday, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+                                        Icon(Icons.Default.CalendarToday, null, tint = selectedColor, modifier = Modifier.size(32.dp))
                                         Spacer(modifier = Modifier.width(20.dp))
                                         Text(text = dateTimeFormatted, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                                     }
@@ -864,7 +932,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                 Spacer(modifier = Modifier.height(24.dp))
                                 Text("The counter will start from this exact second", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                             }
-                            4 -> {
+                            5 -> {
                                 Text(strings.selectTarget, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
                                 Spacer(modifier = Modifier.height(24.dp))
                                 LazyColumn(
@@ -877,7 +945,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                             modifier = Modifier.fillMaxWidth().clickable { selectedTarget = days }, 
                                             shape = RoundedCornerShape(20.dp),
                                             colors = CardDefaults.cardColors(
-                                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary 
+                                                containerColor = if (isSelected) selectedColor 
                                                                 else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
                                             ),
                                             elevation = CardDefaults.cardElevation(defaultElevation = if(isSelected) 8.dp else 0.dp)
@@ -905,15 +973,16 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
 
                 Button(
                     onClick = { 
-                        if (step < 4) step++ 
-                        else onHabitAdded(RecoveryHabit(name = habitName, icon = selectedIcon, targetDays = selectedTarget, color = Color(0xFF6366F1), startDate = startDateMillis)) 
+                        if (step < 5) step++ 
+                        else onHabitAdded(RecoveryHabit(name = habitName, icon = selectedIcon, targetDays = selectedTarget, color = selectedColor, startDate = startDateMillis)) 
                     }, 
                     modifier = Modifier.fillMaxWidth().height(64.dp), 
                     shape = RoundedCornerShape(20.dp), 
                     enabled = step != 1 || habitName.isNotBlank(),
+                    colors = ButtonDefaults.buttonColors(containerColor = selectedColor),
                     elevation = ButtonDefaults.buttonColors().let { ButtonDefaults.elevatedButtonElevation(defaultElevation = 8.dp) }
                 ) {
-                    Text(if (step < 4) strings.nextStep else strings.start, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+                    Text(if (step < 5) strings.nextStep else strings.start, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
                 }
             }
         }
