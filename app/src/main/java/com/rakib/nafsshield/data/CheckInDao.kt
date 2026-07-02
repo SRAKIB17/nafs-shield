@@ -20,6 +20,9 @@ interface CheckInDao {
     @Query("SELECT * FROM daily_checkins WHERE timestamp >= :startOfDay LIMIT 1")
     suspend fun getTodayCheckIn(startOfDay: Long): CheckInEntity?
 
+    @Query("SELECT * FROM daily_checkins WHERE timestamp >= :startOfDay")
+    suspend fun getCheckInsSince(startOfDay: Long): List<CheckInEntity>
+
     @Query("SELECT * FROM daily_checkins WHERE timestamp >= :startTime AND timestamp <= :endTime")
     fun getCheckInsInRange(startTime: Long, endTime: Long): Flow<List<CheckInEntity>>
 

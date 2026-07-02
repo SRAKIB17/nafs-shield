@@ -804,19 +804,25 @@ fun DashboardScreen(
                 )
             }
 
-            if (!isCheckInDone && habits.isNotEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().clickable { onCheckIn(habits.first()) },
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
-                    ) {
-                        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(strings.todayCheckIn, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                                Text("মাত্র ৫ সেকেন্ডে দিনটি রেকর্ড করুন", style = MaterialTheme.typography.labelSmall)
+            if (habits.isNotEmpty()) {
+                val checkedInIds by viewModel.checkedInHabitIds
+                val allHabitsDone = habits.all { it.id in checkedInIds }
+                
+                if (!allHabitsDone) {
+                    val nextHabitToCheckIn = habits.find { it.id !in checkedInIds } ?: habits.first()
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().clickable { onCheckIn(nextHabitToCheckIn) },
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                        ) {
+                            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column {
+                                    Text(strings.todayCheckIn, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                    Text("${checkedInIds.size}/${habits.size} ${strings.appName} সম্পন্ন", style = MaterialTheme.typography.labelSmall)
+                                }
                             }
                         }
                     }
@@ -839,8 +845,10 @@ fun DashboardScreen(
             }
 
             items(habits) { habit ->
+                val checkedInHabitIds by viewModel.checkedInHabitIds
                 RecoveryJourneyCard(
                     habit = habit,
+                    isCheckedInToday = habit.id in checkedInHabitIds,
                     onRelapse = { habitToRelapse = habit },
                     onCheckIn = { onCheckIn(habit) },
                     onDelete = { onDelete(habit) },
@@ -1397,7 +1405,7 @@ fun MilestoneCelebrationDialog(
 }
 
 @Composable
-fun RecoveryJourneyCard(habit: RecoveryHabit, onRelapse: () -> Unit, onCheckIn: () -> Unit, onDelete: () -> Unit, strings: AppStrings) {
+fun RecoveryJourneyCard(habit: RecoveryHabit, isCheckedInToday: Boolean, onRelapse: () -> Unit, onCheckIn: () -> Unit, onDelete: () -> Unit, strings: AppStrings) {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(key1 = habit.id) { while (true) { currentTime = System.currentTimeMillis(); delay(1000) } }
     val diff = maxOf(0L, currentTime - habit.startDate)
@@ -1453,14 +1461,17 @@ fun RecoveryJourneyCard(habit: RecoveryHabit, onRelapse: () -> Unit, onCheckIn: 
                     IconButton(onClick = onRelapse) { Icon(Icons.Default.RestartAlt, contentDescription = "Relapse", tint = Color.Red) }
                     Button(
                         onClick = onCheckIn,
-                        colors = ButtonDefaults.buttonColors(containerColor = habit.color.copy(alpha = 0.1f), contentColor = habit.color),
+                        colors = if (isCheckedInToday) 
+                                    ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = Color.Gray)
+                                 else 
+                                    ButtonDefaults.buttonColors(containerColor = habit.color.copy(alpha = 0.1f), contentColor = habit.color),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         shape = RoundedCornerShape(12.dp),
                         modifier = androidx.compose.ui.Modifier.height(36.dp)
                     ) {
                         Icon(Icons.Default.Check, null, modifier = androidx.compose.ui.Modifier.size(16.dp))
                         Spacer(modifier = androidx.compose.ui.Modifier.width(4.dp))
-                        Text("Check-in", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(if (isCheckedInToday) "Done" else "Check-in", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1634,6 +1645,19 @@ fun DailyCheckInScreen(
     var selectedReasons by remember { mutableStateOf(setOf<String>()) }
     var selectedActivities by remember { mutableStateOf(setOf<String>()) }
     var note by remember { mutableStateOf("") }
+
+    LaunchedEffect(habitId) {
+        viewModel.getCheckInForHabitToday(habitId) { existing ->
+            existing?.let {
+                mood = it.mood
+                urgeLevel = it.urgeLevel
+                isRelapse = it.isRelapse
+                selectedReasons = it.relapseReasons.split(",").filter { s -> s.isNotBlank() }.toSet()
+                selectedActivities = it.activities.split(",").filter { s -> s.isNotBlank() }.toSet()
+                note = it.note
+            }
+        }
+    }
 
     val habits by viewModel.habits.collectAsState()
     val habit = habits.find { it.id == habitId } ?: return
