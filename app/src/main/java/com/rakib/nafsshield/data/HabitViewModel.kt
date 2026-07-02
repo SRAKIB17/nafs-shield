@@ -19,6 +19,7 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     private val database = AppDatabase.getDatabase(application)
     private val habitDao = database.habitDao()
     private val checkInDao = database.checkInDao()
+    private val urgeLogDao = database.urgeLogDao()
     private val preferenceManager = PreferenceManager(application)
 
     val habits = habitDao.getAllHabits().map { entities ->
@@ -29,6 +30,26 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     val language = preferenceManager.language.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "bn")
 
     val allCheckIns = checkInDao.getAllCheckIns().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val allUrgeLogs = urgeLogDao.getAllUrgeLogs().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val totalUrges = urgeLogDao.getAllUrgeLogs().map { it.size }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val successRate = urgeLogDao.getAllUrgeLogs().map { logs ->
+        if (logs.isEmpty()) 0 else (logs.count { it.wasRecovered } * 100) / logs.size
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    fun logUrgeSession(duration: Int, trigger: String, wasRecovered: Boolean, endLevel: String, notes: String = "") {
+        viewModelScope.launch {
+            urgeLogDao.insertUrgeLog(
+                UrgeLogEntity(
+                    duration = duration,
+                    trigger = trigger,
+                    wasRecovered = wasRecovered,
+                    endUrgeLevel = endLevel,
+                    notes = notes
+                )
+            )
+        }
+    }
 
     fun setDarkMode(enabled: Boolean) {
         viewModelScope.launch {
@@ -42,6 +63,9 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _checkedInHabitIds = androidx.compose.runtime.mutableStateOf(setOf<String>())
+    val checkedInHabitIds: androidx.compose.runtime.State<Set<String>> = _checkedInHabitIds
+
     private val _isTodayCheckInDone = mutableStateOf(false)
     val isTodayCheckInDone: androidx.compose.runtime.State<Boolean> = _isTodayCheckInDone
 
@@ -49,21 +73,71 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         checkTodayStatus()
     }
 
-    private fun checkTodayStatus() {
+    fun checkTodayStatus() {
         viewModelScope.launch {
             val calendar = java.util.Calendar.getInstance()
             calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
             calendar.set(java.util.Calendar.MINUTE, 0)
             calendar.set(java.util.Calendar.SECOND, 0)
             val startOfDay = calendar.timeInMillis
-            _isTodayCheckInDone.value = checkInDao.getTodayCheckIn(startOfDay) != null
+            
+            val todayCheckIns = checkInDao.getCheckInsSince(startOfDay)
+            _checkedInHabitIds.value = todayCheckIns.map { it.habitId }.toSet()
+            _isTodayCheckInDone.value = todayCheckIns.isNotEmpty()
         }
     }
 
-    fun performDailyCheckIn(mood: String) {
+    fun performDailyCheckIn(checkIn: CheckInEntity) {
         viewModelScope.launch {
-            checkInDao.insertCheckIn(CheckInEntity(mood = mood))
-            _isTodayCheckInDone.value = true
+            // Check if there's already a check-in for this habit today to update it
+            val calendar = java.util.Calendar.getInstance()
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+            val startOfDay = calendar.timeInMillis
+            calendar.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            val endOfDay = calendar.timeInMillis
+            
+            val existing = checkInDao.getHabitCheckInForDay(checkIn.habitId, startOfDay, endOfDay)
+            val finalCheckIn = if (existing != null) {
+                checkIn.copy(id = existing.id)
+            } else {
+                checkIn
+            }
+
+            checkInDao.insertCheckIn(finalCheckIn)
+            
+            habits.value.find { it.id == checkIn.habitId }?.let { habit ->
+                if (checkIn.isRelapse) {
+                    relapse(habit)
+                } else if (existing == null) {
+                    // Update stats only if it's the FIRST check-in of the day
+                    val diff = System.currentTimeMillis() - habit.startDate
+                    val days = (diff / (24 * 60 * 60 * 1000)).toInt()
+                    
+                    val updated = habit.copy(
+                        currentStreak = days,
+                        totalCleanDays = habit.totalCleanDays + 1,
+                        longestStreak = maxOf(habit.longestStreak, days)
+                    )
+                    habitDao.updateHabit(updated.toEntity())
+                }
+            }
+            checkTodayStatus()
+        }
+    }
+
+    fun getCheckInForHabitToday(habitId: String, callback: (CheckInEntity?) -> Unit) {
+        viewModelScope.launch {
+            val calendar = java.util.Calendar.getInstance()
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+            val startOfDay = calendar.timeInMillis
+            calendar.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            val endOfDay = calendar.timeInMillis
+            val result = checkInDao.getHabitCheckInForDay(habitId, startOfDay, endOfDay)
+            callback(result)
         }
     }
 

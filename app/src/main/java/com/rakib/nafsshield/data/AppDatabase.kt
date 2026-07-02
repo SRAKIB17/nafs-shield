@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [HabitEntity::class, CheckInEntity::class], version = 3)
+@Database(entities = [HabitEntity::class, CheckInEntity::class, UrgeLogEntity::class], version = 5)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
     abstract fun checkInDao(): CheckInDao
+    abstract fun urgeLogDao(): UrgeLogDao
 
     companion object {
         @Volatile

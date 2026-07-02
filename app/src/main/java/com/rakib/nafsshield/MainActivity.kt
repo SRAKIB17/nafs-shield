@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -80,6 +82,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -90,9 +93,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -168,18 +174,18 @@ data class Milestone(
 
 fun getMilestone(days: Int): Milestone {
     return when {
-        days >= 1460 -> Milestone("Master of Recovery", Icons.Default.AutoAwesome, Color(0xFF00E5FF), 1460, "“আল্লাহর কাছে সবচেয়ে প্রিয় আমল হলো যা নিয়মিত করা হয়, যদিও তা অল্প হয়।” (বুখারী)")
-        days >= 730 -> Milestone("দৃঢ় ব্যক্তিত্ব", Icons.Default.EmojiEvents, Color(0xFFFFD700), 730, "“প্রকৃত বীর সে নয় যে কুস্তিতে অন্যকে হারিয়ে দেয়, বরং সেই প্রকৃত বীর যে রাগের সময় নিজেকে নিয়ন্ত্রণ করে।” (মুসলিম)")
-        days >= 365 -> Milestone("নতুন জীবন", Icons.Default.Park, Color(0xFF4CAF50), 365, "“যে ব্যক্তি আল্লাহকে ভয় করবে, আল্লাহ তার জন্য বের হওয়ার পথ করে দিবেন।” (সূরা তালাক: ২)")
-        days >= 180 -> Milestone("অটল যোদ্ধা", Icons.Default.Terrain, Color(0xFF795548), 180, "“নিশ্চয়ই কষ্টের সাথেই স্বস্তি রয়েছে।” (সূরা ইনশিরাহ: ৬)")
-        days >= 90 -> Milestone("Recovery Champion", Icons.Default.MilitaryTech, Color(0xFFFF9800), 90, "“নিশ্চয়ই সফল হয়েছে সেই, যে নিজের আত্মাকে শুদ্ধ করেছে।” (সূরা আশ-শামস: ৯)")
-        days >= 60 -> Milestone("শক্তিশালী মন", Icons.Default.FitnessCenter, Color(0xFF607D8B), 60, "“আল্লাহর সাহায্য ধৈর্য ও সালাতের মাধ্যমে অন্বেষণ করো।” (সূরা বাকারা: ৪৫)")
-        days >= 30 -> Milestone("অভ্যাস ভাঙার শুরু", Icons.Default.Spa, Color(0xFF8BC34A), 30, "“মুমিনের প্রতিটি কাজই বিস্ময়কর; তার জন্য তার সবকিছুতেই কল্যাণ রয়েছে।” (মুসলিম)")
-        days >= 14 -> Milestone("আত্মনিয়ন্ত্রণ", Icons.Default.Shield, Color(0xFF2196F3), 14, "“যে ব্যক্তি তার লজ্জাস্থান ও জিহ্বার হেফাজত করবে, আমি তার জান্নাতের দায়িত্ব নিব।” (বুখারী)")
-        days >= 7 -> Milestone("দৃঢ় সংকল্প", Icons.Default.Shield, Color(0xFFFFEB3B), 7, "“তোমরা ধৈর্য ও সালাতের মাধ্যমে সাহায্য প্রার্থনা করো।”")
-        days >= 3 -> Milestone("প্রথম জয়", Icons.Default.Star, Color(0xFFFFC107), 3, "“আল্লাহর পথে এক সকাল বা এক সন্ধ্যা ব্যয় করা দুনিয়া ও তার মধ্যকার সবকিছুর চেয়ে উত্তম।”")
-        days >= 1 -> Milestone("নতুন শুরু", Icons.Default.Shield, Color(0xFFCDDC39), 1, "“প্রতিটি আমল নিয়তের ওপর নির্ভরশীল।”")
-        else -> Milestone("সূচনা", Icons.Default.Shield, Color.Gray, 0)
+        days >= 1460 -> Milestone("Lifetime Victory", Icons.Default.AutoAwesome, Color(0xFF00E5FF), 1460, "“আল্লাহর কাছে সবচেয়ে প্রিয় আমল হলো যা নিয়মিত করা হয়, যদিও তা অল্প হয়।” (বুখারী)")
+        days >= 730 -> Milestone("Deep Recovery", Icons.Default.EmojiEvents, Color(0xFFFFD700), 730, "“প্রকৃত বীর সে নয় যে কুস্তিতে অন্যকে হারিয়ে দেয়, বরং সেই প্রকৃত বীর যে রাগের সময় নিজেকে নিয়ন্ত্রণ করে।” (মুসলিম)")
+        days >= 365 -> Milestone("New Life", Icons.Default.Park, Color(0xFF4CAF50), 365, "“যে ব্যক্তি আল্লাহকে ভয় করবে, আল্লাহ তার জন্য বের হওয়ার পথ করে দিবেন।” (সূরা তালাক: ২)")
+        days >= 180 -> Milestone("Unshaken", Icons.Default.Terrain, Color(0xFF795548), 180, "“নিশ্চয়ই কষ্টের সাথেই স্বস্তি রয়েছে।” (সূরা ইনশিরাহ: ৬)")
+        days >= 90 -> Milestone("Strong Mind", Icons.Default.MilitaryTech, Color(0xFFFF9800), 90, "“নিশ্চয়ই সফল হয়েছে সেই, যে নিজের আত্মাকে শুদ্ধ করেছে।” (সূরা আশ-শামস: ৯)")
+        days >= 60 -> Milestone("Steady Mind", Icons.Default.FitnessCenter, Color(0xFF607D8B), 60, "“আল্লাহর সাহায্য ধৈর্য ও সালাতের মাধ্যমে অন্বেষণ করো।” (সূরা বাকারা: ৪৫)")
+        days >= 30 -> Milestone("Self Mastery", Icons.Default.Spa, Color(0xFF8BC34A), 30, "“মুমিনের প্রতিটি কাজই বিস্ময়কর; তার জন্য তার সবকিছুতেই কল্যাণ রয়েছে।” (মুসলিম)")
+        days >= 14 -> Milestone("Steady Warrior", Icons.Default.Shield, Color(0xFF2196F3), 14, "“যে ব্যক্তি তার লজ্জাস্থান ও জিহ্বার হেফাজত করবে, আমি তার জান্নাতের দায়িত্ব নিব।” (বুখারী)")
+        days >= 7 -> Milestone("First Victory", Icons.Default.Shield, Color(0xFFFFEB3B), 7, "“তোমরা ধৈর্য ও সালাতের মাধ্যমে সাহায্য প্রার্থনা করো।”")
+        days >= 3 -> Milestone("Early Progress", Icons.Default.Star, Color(0xFFFFC107), 3, "“আল্লাহর পথে এক সকাল বা এক সন্ধ্যা ব্যয় করা দুনিয়া ও তার মধ্যকার সবকিছুর চেয়ে উত্তম।”")
+        days >= 1 -> Milestone("Start", Icons.Default.Shield, Color(0xFFCDDC39), 1, "“প্রতিটি আমল নিয়তের ওপর নির্ভরশীল।”")
+        else -> Milestone("Initialization", Icons.Default.Shield, Color.Gray, 0)
     }
 }
 
@@ -243,6 +249,66 @@ interface AppStrings {
     val target2Years: String
     val target4Years: String
     val targetUnlimited: String
+    
+    val urgeButtonTitle: String
+    val urgeButtonSubtitle: String
+    val safeMessage: String
+    val feelingPassMessage: String
+    val stepTogether: String
+    val stayWithUs: String
+    val readyButton: String
+    val stopTitle: String
+    val stopDesc: String
+    val breathingTitle: String
+    val motivationTitle: String
+    val motivationDesc: String
+    val streakMessage: String
+    val halChharben: String
+    val drinkWaterTitle: String
+    val drankWaterButton: String
+    val walkTitle: String
+    val finishedWalkButton: String
+    val aloneQuestion: String
+    val changeEnvTitle: String
+    val changeEnvDesc: String
+    val triggerTitle: String
+    val journalTitle: String
+    val journalHint: String
+    val sessionCompleteTitle: String
+    val proudMessage: String
+    val howFeelingNow: String
+    val optionFullyGone: String
+    val optionDecreased: String
+    val optionSmallUrge: String
+    val optionSame: String
+    val optionIncreased: String
+
+    val todayCheckIn: String
+    val urgeQuestion: String
+    val relapseQuestion: String
+    val relapseReasonTitle: String
+    val activitiesQuestion: String
+    val noteHint: String
+    val checkInCompleted: String
+    val excellent: String
+    val keepGoing: String
+    val editCheckIn: String
+    val save: String
+    
+    val analytics: String
+    val summary: String
+    val currentMonth: String
+    val lastMonth: String
+    val currentYear: String
+    val lastYear: String
+    val allHabits: String
+    val moodDistribution: String
+    val urgeAnalysis: String
+    val consistency: String
+    val triggerAnalysis: String
+    val recoveryScore: String
+    val insights: String
+    val noData: String
 }
 
 object BanglaStrings : AppStrings {
@@ -305,6 +371,66 @@ object BanglaStrings : AppStrings {
     override val target2Years = "২ বছর"
     override val target4Years = "৪ বছর"
     override val targetUnlimited = "আনলিমিটেড"
+
+    override val urgeButtonTitle = "জরুরি রিকভারি মোড"
+    override val urgeButtonSubtitle = "আমার এখন খুব Urge হচ্ছে"
+    override val safeMessage = "আপনি নিরাপদ আছেন।"
+    override val feelingPassMessage = "এই অনুভূতিটা কিছু সময়ের মধ্যেই কমে যাবে।"
+    override val stepTogether = "চলুন ধাপে ধাপে একসাথে এগোই।"
+    override val stayWithUs = "আমাদের সাথে থাকুন"
+    override val readyButton = "আমি প্রস্তুত"
+    override val stopTitle = "থামুন।"
+    override val stopDesc = "এখন কোনো সিদ্ধান্ত নেবেন না। আপনি এই অনুভূতির চেয়ে শক্তিশালী।"
+    override val breathingTitle = "গভীর শ্বাস নিন"
+    override val motivationTitle = "মনে রাখবেন"
+    override val motivationDesc = "এই Urge স্থায়ী নয়। কয়েক মিনিট পর এটি কমে যাবে। আজকে নিজেকে জয় করুন।"
+    override val streakMessage = "আপনি %d দিন ধরে রেখেছেন।"
+    override val halChharben = "এখনই হাল ছাড়বেন?"
+    override val drinkWaterTitle = "এক গ্লাস পানি পান করুন।"
+    override val drankWaterButton = "আমি পানি পান করেছি"
+    override val walkTitle = "৫ মিনিট হাঁটুন অথবা রুম পরিবর্তন করুন।"
+    override val finishedWalkButton = "হাঁটা শেষ"
+    override val aloneQuestion = "আপনি কি এখনও একা আছেন?"
+    override val changeEnvTitle = "পরিবেশ পরিবর্তন করুন"
+    override val changeEnvDesc = "বারান্দায় যান অথবা পরিবারের কাছে যান। আলো জ্বালান।"
+    override val triggerTitle = "কেন Urge হলো?"
+    override val journalTitle = "মিনি জার্নাল"
+    override val journalHint = "আপনি এখন কী অনুভব করছেন?"
+    override val sessionCompleteTitle = "অভিনন্দন!"
+    override val proudMessage = "আপনি একটি Urge মোকাবিলা করেছেন। নিজের উপর গর্ব করুন।"
+    override val howFeelingNow = "Urge এখন কেমন?"
+    override val optionFullyGone = "পুরোপুরি চলে গেছে"
+    override val optionDecreased = "অনেক কমেছে"
+    override val optionSmallUrge = "অল্প আছে"
+    override val optionSame = "একই আছে"
+    override val optionIncreased = "আরও বেড়েছে"
+
+    override val todayCheckIn = "আজকের চেক-ইন"
+    override val urgeQuestion = "আজ কি Urge হয়েছে?"
+    override val relapseQuestion = "আজ কি রিল্যাপস হয়েছে?"
+    override val relapseReasonTitle = "রিল্যাপসের কারণ (একাধিক হতে পারে)"
+    override val activitiesQuestion = "আজকে কী কী ভালো কাজ করেছ?"
+    override val noteHint = "আজকের বিশেষ কোনো মুহূর্ত বা অনুভূতি..."
+    override val checkInCompleted = "আজকের চেক-ইন সম্পন্ন হয়েছে"
+    override val excellent = "অসাধারণ!"
+    override val keepGoing = "এগিয়ে যান"
+    override val editCheckIn = "চেক-ইন পরিবর্তন করুন"
+    override val save = "সংরক্ষণ করুন"
+
+    override val analytics = "অ্যানালিটিক্স"
+    override val summary = "সংক্ষিপ্ত বিবরণ"
+    override val currentMonth = "এই মাস"
+    override val lastMonth = "গত মাস"
+    override val currentYear = "এই বছর"
+    override val lastYear = "গত বছর"
+    override val allHabits = "সব হ্যাবিট"
+    override val moodDistribution = "মুড ডিস্ট্রিবিউশন"
+    override val urgeAnalysis = "Urge বিশ্লেষণ"
+    override val consistency = "ধারাবাহিকতা"
+    override val triggerAnalysis = "ট্রিগার বিশ্লেষণ"
+    override val recoveryScore = "রিকভারি স্কোর"
+    override val insights = "ইনসাইটস"
+    override val noData = "কোনো তথ্য পাওয়া যায়নি"
 }
 
 object EnglishStrings : AppStrings {
@@ -367,10 +493,70 @@ object EnglishStrings : AppStrings {
     override val target2Years = "2 Years"
     override val target4Years = "4 Years"
     override val targetUnlimited = "Unlimited"
+
+    override val urgeButtonTitle = "Emergency Recovery Mode"
+    override val urgeButtonSubtitle = "I'm having a strong urge now"
+    override val safeMessage = "You are safe."
+    override val feelingPassMessage = "This feeling will pass in a few minutes."
+    override val stepTogether = "Let's walk through this together."
+    override val stayWithUs = "Stay With Us"
+    override val readyButton = "I'm Ready"
+    override val stopTitle = "Stop."
+    override val stopDesc = "Don't make any decisions now. You are stronger than this feeling."
+    override val breathingTitle = "Deep Breathing"
+    override val motivationTitle = "Remember"
+    override val motivationDesc = "This urge is not permanent. It will decrease in a few minutes. Conquer yourself today."
+    override val streakMessage = "You have held on for %d days."
+    override val halChharben = "Will you give up now?"
+    override val drinkWaterTitle = "Drink a glass of water."
+    override val drankWaterButton = "I drank water"
+    override val walkTitle = "Walk for 5 minutes or change your room."
+    override val finishedWalkButton = "Finished Walk"
+    override val aloneQuestion = "Are you still alone?"
+    override val changeEnvTitle = "Change Environment"
+    override val changeEnvDesc = "Go to the balcony or join family. Turn on the lights."
+    override val triggerTitle = "Why did the urge happen?"
+    override val journalTitle = "Mini Journal"
+    override val journalHint = "How are you feeling right now?"
+    override val sessionCompleteTitle = "Congratulations!"
+    override val proudMessage = "You tackled an urge. Be proud of yourself."
+    override val howFeelingNow = "How is the urge now?"
+    override val optionFullyGone = "Fully gone"
+    override val optionDecreased = "Decreased a lot"
+    override val optionSmallUrge = "Small urge remains"
+    override val optionSame = "Still same"
+    override val optionIncreased = "Increased"
+
+    override val todayCheckIn = "Today's Check-In"
+    override val urgeQuestion = "Did you have any urges today?"
+    override val relapseQuestion = "Did you relapse today?"
+    override val relapseReasonTitle = "Relapse Reason (Multiple choice)"
+    override val activitiesQuestion = "What positive activities did you do today?"
+    override val noteHint = "Special moments or feelings from today..."
+    override val checkInCompleted = "Today's Check-In Completed"
+    override val excellent = "Excellent!"
+    override val keepGoing = "Keep Going"
+    override val editCheckIn = "Edit Check-In"
+    override val save = "Save"
+
+    override val analytics = "Analytics"
+    override val summary = "Summary"
+    override val currentMonth = "Current Month"
+    override val lastMonth = "Last Month"
+    override val currentYear = "Current Year"
+    override val lastYear = "Last Year"
+    override val allHabits = "All Habits"
+    override val moodDistribution = "Mood Distribution"
+    override val urgeAnalysis = "Urge Analysis"
+    override val consistency = "Consistency"
+    override val triggerAnalysis = "Trigger Analysis"
+    override val recoveryScore = "Recovery Score"
+    override val insights = "Insights"
+    override val noData = "No data available"
 }
 
 enum class Screen {
-    Dashboard, AddHabit, Settings, CheckInHistory, UrgeEmergency
+    Dashboard, AddHabit, Settings, CheckInHistory, UrgeEmergency, Analytics, DailyCheckIn
 }
 
 class MainActivity : ComponentActivity() {
@@ -395,6 +581,7 @@ fun MainApp(viewModel: HabitViewModel) {
     val habits by viewModel.habits.collectAsState()
     val language by viewModel.language.collectAsState()
     var celebratedMilestone by remember { mutableStateOf<Pair<RecoveryHabit, Milestone>?>(null) }
+    var selectedHabitIdForCheckIn by remember { mutableStateOf<String?>(null) }
 
     val strings = if (language == "bn") BanglaStrings else EnglishStrings
 
@@ -422,47 +609,90 @@ fun MainApp(viewModel: HabitViewModel) {
         )
     }
 
-    AnimatedContent(
-        targetState = currentScreen,
-        transitionSpec = { fadeIn() togetherWith fadeOut() },
-        label = "ScreenTransition"
-    ) { screen ->
-        when (screen) {
-            Screen.Dashboard -> DashboardScreen(
-                habits = habits,
-                onAddHabitClick = { currentScreen = Screen.AddHabit },
-                onSettingsClick = { currentScreen = Screen.Settings },
-                onHistoryClick = { currentScreen = Screen.CheckInHistory },
-                onUrgeClick = { currentScreen = Screen.UrgeEmergency },
-                onRelapse = { viewModel.relapse(it) },
-                onCheckIn = { viewModel.checkIn(it) },
-                onDelete = { viewModel.deleteHabit(it) },
-                isCheckInDone = viewModel.isTodayCheckInDone.value,
-                onPerformCheckIn = { viewModel.performDailyCheckIn(it) },
-                strings = strings
-            )
-            Screen.AddHabit -> AddHabitScreen(
-                onHabitAdded = { newHabit ->
-                    viewModel.addHabit(newHabit)
-                    currentScreen = Screen.Dashboard
-                },
-                onBack = { currentScreen = Screen.Dashboard },
-                strings = strings
-            )
-            Screen.Settings -> SettingsScreen(
-                viewModel = viewModel,
-                onBack = { currentScreen = Screen.Dashboard },
-                strings = strings
-            )
-            Screen.CheckInHistory -> CheckInHistoryScreen(
-                viewModel = viewModel,
-                onBack = { currentScreen = Screen.Dashboard },
-                strings = strings
-            )
-            Screen.UrgeEmergency -> UrgeEmergencyScreen(
-                onBack = { currentScreen = Screen.Dashboard },
-                strings = strings
-            )
+    Scaffold(
+        bottomBar = {
+            if (currentScreen == Screen.Dashboard || currentScreen == Screen.Analytics) {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 8.dp
+                ) {
+                    NavigationBarItem(
+                        selected = currentScreen == Screen.Dashboard,
+                        onClick = { currentScreen = Screen.Dashboard },
+                        icon = { Icon(Icons.Default.Spa, contentDescription = null) },
+                        label = { Text(strings.dashboard) }
+                    )
+                    NavigationBarItem(
+                        selected = currentScreen == Screen.Analytics,
+                        onClick = { currentScreen = Screen.Analytics },
+                        icon = { Icon(Icons.Default.History, contentDescription = null) },
+                        label = { Text(strings.analytics) }
+                    )
+                }
+            }
+        }
+    ) { padding ->
+        AnimatedContent(
+            targetState = currentScreen,
+            transitionSpec = { fadeIn() togetherWith fadeOut() },
+            label = "ScreenTransition",
+            modifier = Modifier.padding(padding)
+        ) { screen ->
+            when (screen) {
+                Screen.Dashboard -> DashboardScreen(
+                    viewModel = viewModel,
+                    onAddHabitClick = { currentScreen = Screen.AddHabit },
+                    onSettingsClick = { currentScreen = Screen.Settings },
+                    onHistoryClick = { currentScreen = Screen.CheckInHistory },
+                    onUrgeClick = { currentScreen = Screen.UrgeEmergency },
+                    onRelapse = { viewModel.relapse(it) },
+                    onCheckIn = { habit -> 
+                        selectedHabitIdForCheckIn = habit.id
+                        currentScreen = Screen.DailyCheckIn 
+                    },
+                    onDelete = { viewModel.deleteHabit(it) },
+                    isCheckInDone = viewModel.isTodayCheckInDone.value,
+                    onPerformCheckIn = { /* Not used in full check-in flow */ },
+                    strings = strings
+                )
+                Screen.DailyCheckIn -> {
+                    selectedHabitIdForCheckIn?.let { habitId ->
+                        DailyCheckInScreen(
+                            habitId = habitId,
+                            viewModel = viewModel,
+                            onBack = { currentScreen = Screen.Dashboard },
+                            strings = strings
+                        )
+                    }
+                }
+                Screen.Analytics -> AnalyticsScreen(
+                    viewModel = viewModel,
+                    strings = strings
+                )
+                Screen.AddHabit -> AddHabitScreen(
+                    onHabitAdded = { newHabit ->
+                        viewModel.addHabit(newHabit)
+                        currentScreen = Screen.Dashboard
+                    },
+                    onBack = { currentScreen = Screen.Dashboard },
+                    strings = strings
+                )
+                Screen.Settings -> SettingsScreen(
+                    viewModel = viewModel,
+                    onBack = { currentScreen = Screen.Dashboard },
+                    strings = strings
+                )
+                Screen.CheckInHistory -> CheckInHistoryScreen(
+                    viewModel = viewModel,
+                    onBack = { currentScreen = Screen.Dashboard },
+                    strings = strings
+                )
+                Screen.UrgeEmergency -> UrgeEmergencyScreen(
+                    viewModel = viewModel,
+                    onBack = { currentScreen = Screen.Dashboard },
+                    strings = strings
+                )
+            }
         }
     }
 }
@@ -470,7 +700,7 @@ fun MainApp(viewModel: HabitViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    habits: List<RecoveryHabit>,
+    viewModel: HabitViewModel,
     onAddHabitClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onHistoryClick: () -> Unit,
@@ -482,6 +712,10 @@ fun DashboardScreen(
     onPerformCheckIn: (String) -> Unit,
     strings: AppStrings
 ) {
+    val habits by viewModel.habits.collectAsState()
+    val totalUrges by viewModel.totalUrges.collectAsState()
+    val successRate by viewModel.successRate.collectAsState()
+    
     val todayDate = SimpleDateFormat("EEEE, dd MMMM", Locale.getDefault()).format(Date())
     var habitToRelapse by remember { mutableStateOf<RecoveryHabit?>(null) }
     var habitToDelete by remember { mutableStateOf<RecoveryHabit?>(null) }
@@ -570,9 +804,28 @@ fun DashboardScreen(
                 )
             }
 
-            if (!isCheckInDone) {
+            if (!isCheckInDone && habits.isNotEmpty()) {
                 item {
-                    DailyCheckInCard(onCheckIn = onPerformCheckIn, strings = strings)
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable { onCheckIn(habits.first()) },
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                    ) {
+                        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(strings.todayCheckIn, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Text("মাত্র ৫ সেকেন্ডে দিনটি রেকর্ড করুন", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (totalUrges > 0) {
+                item {
+                    UrgeSummaryCard(totalUrges, successRate)
                 }
             }
 
@@ -596,7 +849,73 @@ fun DashboardScreen(
             }
 
             item {
+                UrgeEmergencyButton(onClick = onUrgeClick, strings = strings)
+            }
+
+            item {
                 Spacer(modifier = Modifier.height(80.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun UrgeSummaryCard(total: Int, rate: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E3A8A).copy(alpha = 0.05f)),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "$total", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color(0xFF1E3A8A))
+                Text(text = "Urges Logged", style = MaterialTheme.typography.labelSmall)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "$rate%", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color(0xFF16A34A))
+                Text(text = "Success Rate", style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+}
+
+@Composable
+fun UrgeEmergencyButton(onClick: () -> Unit, strings: AppStrings) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .shadow(12.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E3A8A)) // Calming Deep Blue
+    ) {
+        Row(
+            modifier = Modifier.padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = strings.urgeButtonTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = strings.urgeButtonSubtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
             }
         }
     }
@@ -814,7 +1133,13 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
 
                 AnimatedContent(
                     targetState = step,
-                    transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(500)) },
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            fadeIn(tween(400)) + expandVertically() togetherWith fadeOut(tween(400))
+                        } else {
+                            fadeIn(tween(400)) togetherWith fadeOut(tween(400)) + shrinkVertically()
+                        }
+                    },
                     label = "StepContent",
                     modifier = Modifier.weight(1f)
                 ) { currentStep ->
@@ -857,7 +1182,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                     columns = GridCells.Fixed(4), 
                                     verticalArrangement = Arrangement.spacedBy(16.dp), 
                                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, bottom = 16.dp)
                                 ) {
                                     items(availableIcons) { icon ->
                                         val isSelected = selectedIcon == icon
@@ -892,7 +1217,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                     columns = GridCells.Fixed(3),
                                     verticalArrangement = Arrangement.spacedBy(16.dp),
                                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
                                 ) {
                                     items(availableColors) { color ->
                                         val isSelected = selectedColor == color
@@ -937,7 +1262,7 @@ fun AddHabitScreen(onHabitAdded: (RecoveryHabit) -> Unit, onBack: () -> Unit, st
                                 Spacer(modifier = Modifier.height(24.dp))
                                 LazyColumn(
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                                 ) {
                                     items(targetOptions) { (days, label) ->
                                         val isSelected = selectedTarget == days
@@ -1126,7 +1451,17 @@ fun RecoveryJourneyCard(habit: RecoveryHabit, onRelapse: () -> Unit, onCheckIn: 
                 Row {
                     IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray.copy(alpha = 0.6f)) }
                     IconButton(onClick = onRelapse) { Icon(Icons.Default.RestartAlt, contentDescription = "Relapse", tint = Color.Red) }
-                    IconButton(onClick = onCheckIn) { Icon(Icons.Default.Check, contentDescription = "Check-in", tint = habit.color) }
+                    Button(
+                        onClick = onCheckIn,
+                        colors = ButtonDefaults.buttonColors(containerColor = habit.color.copy(alpha = 0.1f), contentColor = habit.color),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = androidx.compose.ui.Modifier.height(36.dp)
+                    ) {
+                        Icon(Icons.Default.Check, null, modifier = androidx.compose.ui.Modifier.size(16.dp))
+                        Spacer(modifier = androidx.compose.ui.Modifier.width(4.dp))
+                        Text("Check-in", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -1238,11 +1573,11 @@ fun CheckInHistoryScreen(
 fun CheckInHistoryItem(checkIn: CheckInEntity) {
     val date = SimpleDateFormat("dd MMMM, yyyy • hh:mm a", Locale.getDefault()).format(Date(checkIn.timestamp))
     val emoji = when (checkIn.mood) {
-        "ভালো", "Good" -> "😊"
-        "মোটামুটি", "Neutral" -> "😐"
-        "খারাপ", "Bad" -> "😞"
-        "Urge" -> "😖"
-        "Relapse" -> "😔"
+        "😊 খুব ভালো" -> "😊"
+        "🙂 ভালো" -> "🙂"
+        "😐 মোটামুটি" -> "😐"
+        "😔 খারাপ" -> "😞"
+        "😣 খুব খারাপ" -> "😖"
         else -> "🤔"
     }
 
@@ -1265,94 +1600,288 @@ fun CheckInHistoryItem(checkIn: CheckInEntity) {
     }
 }
 
+data class QuranHadith(val content: String, val source: String)
+data class DuaContent(val arabic: String, val translation: String, val pronunciation: String)
+
+object RecoveryContent {
+    val quranHadith = listOf(
+        QuranHadith("“Truly, Allah is with those who are patient.”", "Surah Al-Baqarah: 153"),
+        QuranHadith("“Whoever guards his tongue and his private parts, I guarantee him Paradise.”", "Sahih Bukhari"),
+        QuranHadith("“The strong man is not the one who can wrestle, but the one who can control himself when angry.”", "Sahih Muslim")
+    )
+    val duas = listOf(
+        DuaContent(
+            "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ شَرِّ سَمْعِي، وَمِنْ شَرِّ بَصَرِي...",
+            "O Allah, I seek refuge in You from the evil of my hearing, and from the evil of my seeing...",
+            "Allahumma inni a'udhu bika min sharri sam'i, wa min sharri basari..."
+        )
+    )
+    val triggers = listOf("Stress", "Lonely", "Late Night", "Instagram", "TikTok", "Facebook", "YouTube", "Porn", "Gaming", "Boredom", "Anger", "Anxiety")
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UrgeEmergencyScreen(onBack: () -> Unit, strings: AppStrings) {
-    var timerSeconds by remember { mutableIntStateOf(60) }
-    var breathingPhase by remember { mutableStateOf(strings.breatheIn) }
-    val scale = remember { Animatable(1f) }
+fun DailyCheckInScreen(
+    habitId: String,
+    viewModel: HabitViewModel,
+    onBack: () -> Unit,
+    strings: AppStrings
+) {
+    var step by remember { mutableIntStateOf(1) }
+    var mood by remember { mutableStateOf("") }
+    var urgeLevel by remember { mutableStateOf("") }
+    var isRelapse by remember { mutableStateOf(false) }
+    var selectedReasons by remember { mutableStateOf(setOf<String>()) }
+    var selectedActivities by remember { mutableStateOf(setOf<String>()) }
+    var note by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        while (timerSeconds > 0) {
-            // Breathing animation logic (approx 4s in, 4s hold, 4s out)
-            val phase = (60 - timerSeconds) % 12
-            when {
-                phase < 4 -> {
-                    breathingPhase = strings.breatheIn
-                    scale.animateTo(1.5f, tween(4000))
-                }
-                phase < 8 -> {
-                    breathingPhase = strings.hold
-                    delay(4000)
-                }
-                else -> {
-                    breathingPhase = strings.breatheOut
-                    scale.animateTo(1f, tween(4000))
-                }
-            }
-            delay(1000)
-            timerSeconds--
-        }
-    }
+    val habits by viewModel.habits.collectAsState()
+    val habit = habits.find { it.id == habitId } ?: return
+
+    val moodOptions = listOf("😊 খুব ভালো", "🙂 ভালো", "😐 মোটামুটি", "😔 খারাপ", "😣 খুব খারাপ")
+    val urgeOptions = listOf("❌ একদম না", "🙂 অল্প", "😐 মাঝারি", "😣 অনেক", "🔥 খুব বেশি")
+    val relapseReasons = listOf("Late Night", "Stress", "Loneliness", "Instagram", "Facebook", "TikTok", "YouTube", "Porn", "Gaming", "Boredom", "Anger", "Anxiety")
+    val activityOptions = listOf("Exercise", "Walk", "Prayer", "Meditation", "Reading", "Cold Shower", "Healthy Food", "Early Sleep", "Journal", "Dhikr")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(strings.emergency, fontWeight = FontWeight.Bold) },
+                title = { Text(strings.todayCheckIn, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { if (step > 1) step-- else onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         }
     ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Step Progress
+            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(6) { index ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(6.dp)
+                            .clip(CircleShape)
+                            .background(if (step > index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                }
+            }
+
+            AnimatedContent(targetState = step, label = "CheckInStep", modifier = Modifier.weight(1f)) { currentStep ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    when (currentStep) {
+                        1 -> {
+                            Text(strings.todayQuestion, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            moodOptions.forEach { option ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { mood = option; step++ },
+                                    colors = CardDefaults.cardColors(containerColor = if (mood == option) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                ) {
+                                    Text(option, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyLarge)
+                                }
+                            }
+                        }
+                        2 -> {
+                            Text(strings.urgeQuestion, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            urgeOptions.forEach { option ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { urgeLevel = option; step++ },
+                                    colors = CardDefaults.cardColors(containerColor = if (urgeLevel == option) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                ) {
+                                    Text(option, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyLarge)
+                                }
+                            }
+                        }
+                        3 -> {
+                            Text(strings.relapseQuestion, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                Button(onClick = { isRelapse = false; step = 5 }, modifier = Modifier.weight(1f).height(64.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A))) { Text("No", fontSize = 18.sp) }
+                                Button(onClick = { isRelapse = true; step = 4 }, modifier = Modifier.weight(1f).height(64.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Red)) { Text("Yes", fontSize = 18.sp) }
+                            }
+                        }
+                        4 -> {
+                            Text(strings.relapseReasonTitle, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(relapseReasons) { reason ->
+                                    FilterChip(
+                                        selected = selectedReasons.contains(reason),
+                                        onClick = { if (selectedReasons.contains(reason)) selectedReasons -= reason else selectedReasons += reason },
+                                        label = { Text(reason) }
+                                    )
+                                }
+                            }
+                            Button(onClick = { step++ }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) { Text(strings.nextStep) }
+                        }
+                        5 -> {
+                            Text(strings.activitiesQuestion, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(activityOptions) { activity ->
+                                    FilterChip(
+                                        selected = selectedActivities.contains(activity),
+                                        onClick = { if (selectedActivities.contains(activity)) selectedActivities -= activity else selectedActivities += activity },
+                                        label = { Text(activity) }
+                                    )
+                                }
+                            }
+                            Button(onClick = { step++ }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) { Text(strings.nextStep) }
+                        }
+                        6 -> {
+                            Text(strings.journalTitle, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                value = note,
+                                onValueChange = { note = it },
+                                modifier = Modifier.fillMaxWidth().height(200.dp),
+                                placeholder = { Text(strings.noteHint) },
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Button(
+                                onClick = {
+                                    viewModel.performDailyCheckIn(
+                                        CheckInEntity(
+                                            habitId = habitId,
+                                            mood = mood,
+                                            urgeLevel = urgeLevel,
+                                            isRelapse = isRelapse,
+                                            relapseReasons = selectedReasons.joinToString(","),
+                                            activities = selectedActivities.joinToString(","),
+                                            note = note
+                                        )
+                                    )
+                                    onBack()
+                                },
+                                modifier = Modifier.fillMaxWidth().height(56.dp)
+                            ) { Text(strings.save) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AnalyticsScreen(
+    viewModel: HabitViewModel,
+    strings: AppStrings
+) {
+    val checkIns by viewModel.allCheckIns.collectAsState()
+    val habits by viewModel.habits.collectAsState()
+    
+    var selectedHabitId by remember { mutableStateOf<String?>(null) }
+
+    val filteredCheckIns = checkIns.filter { 
+        (selectedHabitId == null || it.habitId == selectedHabitId)
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(strings.analytics, fontWeight = FontWeight.Black) }
+            )
+        }
+    ) { padding ->
         LazyColumn(
             modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(strings.urgeTitle, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
-            }
-
-            item {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(200.dp)) {
-                    Box(modifier = Modifier.size(100.dp).scale(scale.value).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)))
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(breathingPhase, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                        Text("$timerSeconds", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    item {
+                        FilterChip(
+                            selected = selectedHabitId == null,
+                            onClick = { selectedHabitId = null },
+                            label = { Text(strings.allHabits) }
+                        )
+                    }
+                    items(habits) { habit ->
+                        FilterChip(
+                            selected = selectedHabitId == habit.id,
+                            onClick = { selectedHabitId = habit.id },
+                            label = { Text(habit.name) }
+                        )
                     }
                 }
             }
 
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(strings.urgeMotivation, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(strings.urgeDua, style = MaterialTheme.typography.bodyMedium, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic, color = MaterialTheme.colorScheme.primary)
+            if (filteredCheckIns.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        Text(strings.noData, color = Color.Gray)
                     }
                 }
+            } else {
+                item { RecoverySummaryCard(filteredCheckIns, strings) }
+                item { MoodDistributionCard(filteredCheckIns, strings) }
+                item { UrgeAnalysisCard(filteredCheckIns, strings) }
+                item { AnalyticsCalendarCard(filteredCheckIns, strings) }
             }
+        }
+    }
+}
 
-            item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    UrgeActionCard(modifier = Modifier.weight(1f), icon = Icons.Default.LocalDrink, label = strings.waterReminder)
-                    UrgeActionCard(modifier = Modifier.weight(1f), icon = Icons.Default.DirectionsWalk, label = strings.walkReminder)
-                }
+@Composable
+fun RecoverySummaryCard(checkIns: List<CheckInEntity>, strings: AppStrings) {
+    val cleanDays = checkIns.count { !it.isRelapse }
+    val relapses = checkIns.count { it.isRelapse }
+    val successRate = if (checkIns.isEmpty()) 0 else (cleanDays * 100) / checkIns.size
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(strings.summary, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                StatCol("Clean", "$cleanDays", Color(0xFF16A34A))
+                StatCol("Relapses", "$relapses", Color.Red)
+                StatCol("Success", "$successRate%", MaterialTheme.colorScheme.primary)
             }
+        }
+    }
+}
 
-            item {
-                UrgeActionCard(modifier = Modifier.fillMaxWidth(), icon = Icons.Default.EditNote, label = strings.journalReminder)
-            }
+@Composable
+fun StatCol(label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black, color = color)
+        Text(label, style = MaterialTheme.typography.labelSmall)
+    }
+}
 
-            item {
-                Button(onClick = onBack, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp)) {
-                    Text(strings.stayStrong, fontWeight = FontWeight.Bold)
+@Composable
+fun MoodDistributionCard(checkIns: List<CheckInEntity>, strings: AppStrings) {
+    val moods = checkIns.groupBy { it.mood.take(2) }
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(strings.moodDistribution, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            moods.forEach { (emoji, list) ->
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+                    Text(emoji, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.weight(1f).height(8.dp).clip(CircleShape).background(Color.LightGray)) {
+                        Box(modifier = Modifier.fillMaxWidth(list.size.toFloat() / checkIns.size).fillMaxHeight().clip(CircleShape).background(MaterialTheme.colorScheme.primary))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("${list.size}", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -1360,12 +1889,332 @@ fun UrgeEmergencyScreen(onBack: () -> Unit, strings: AppStrings) {
 }
 
 @Composable
-fun UrgeActionCard(modifier: Modifier, icon: ImageVector, label: String) {
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, null, modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
+fun UrgeAnalysisCard(checkIns: List<CheckInEntity>, strings: AppStrings) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(strings.urgeAnalysis, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth().height(150.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceEvenly) {
+                listOf("❌", "🙂", "😐", "😣", "🔥").forEach { icon ->
+                    val count = checkIns.count { it.urgeLevel.contains(icon) }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(modifier = Modifier.width(24.dp).height((count.toFloat() / maxOf(1, checkIns.size) * 100).dp).clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)).background(MaterialTheme.colorScheme.secondary))
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(icon)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AnalyticsCalendarCard(checkIns: List<CheckInEntity>, strings: AppStrings) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text("Activity Calendar", fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            val calendar = Calendar.getInstance()
+            val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+            
+            LazyVerticalGrid(columns = GridCells.Fixed(7), modifier = Modifier.height(250.dp)) {
+                items(daysInMonth) { index ->
+                    val day = index + 1
+                    val dayCheckIns = checkIns.filter { 
+                        val cal = Calendar.getInstance().apply { timeInMillis = it.timestamp }
+                        cal.get(Calendar.DAY_OF_MONTH) == day
+                    }
+                    val hasRelapse = dayCheckIns.any { it.isRelapse }
+                    val hasCheckIn = dayCheckIns.isNotEmpty()
+                    
+                    Box(
+                        modifier = Modifier.aspectRatio(1f).padding(4.dp).clip(CircleShape).background(
+                            when {
+                                hasRelapse -> Color.Red.copy(alpha = 0.6f)
+                                hasCheckIn -> Color(0xFF16A34A).copy(alpha = 0.6f)
+                                day == currentDay -> MaterialTheme.colorScheme.primaryContainer
+                                else -> Color.Transparent
+                            }
+                        ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("$day", fontSize = 12.sp, fontWeight = if(day == currentDay) FontWeight.Bold else FontWeight.Normal)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UrgeEmergencyScreen(viewModel: HabitViewModel, onBack: () -> Unit, strings: AppStrings) {
+    var currentStep by remember { mutableIntStateOf(1) }
+    val totalSteps = 12
+    var timerSeconds by remember { mutableIntStateOf(300) }
+    
+    val habits by viewModel.habits.collectAsState()
+    val totalStreakDays = habits.sumOf { it.currentStreak }
+
+    LaunchedEffect(Unit) {
+        while (timerSeconds > 0) {
+            delay(1000)
+            timerSeconds--
+        }
+    }
+
+    Scaffold(containerColor = Color(0xFFF8FAFC)) { padding ->
+        Column(modifier = Modifier.padding(padding).fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(text = String.format("%02d:%02d", timerSeconds / 60, timerSeconds % 60), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, color = Color(0xFF1E3A8A))
+                IconButton(onClick = onBack) { Icon(Icons.Default.Close, contentDescription = null) }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                repeat(totalSteps) { index ->
+                    Box(modifier = Modifier.weight(1f).height(6.dp).clip(CircleShape).background(if (currentStep > index) Color(0xFF1E3A8A) else Color(0xFFE2E8F0)))
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+            AnimatedContent(targetState = currentStep, label = "UrgeStep", modifier = Modifier.weight(1f)) { step ->
+                when (step) {
+                    1 -> StopStep(onNext = { currentStep++ }, strings = strings)
+                    2 -> BreathingStep(onNext = { currentStep++ }, strings = strings)
+                    3 -> MotivationStep(streak = totalStreakDays, onNext = { currentStep++ }, strings = strings)
+                    4 -> QuranHadithStep(onNext = { currentStep++ }, strings = strings)
+                    5 -> DuaStep(onNext = { currentStep++ }, strings = strings)
+                    6 -> WaterStep(onNext = { currentStep++ }, strings = strings)
+                    7 -> WalkStep(onNext = { currentStep++ }, strings = strings)
+                    8 -> EnvironmentStep(onNext = { currentStep++ }, strings = strings)
+                    9 -> TriggerStep(onNext = { currentStep++ }, strings = strings)
+                    10 -> JournalStep(onNext = { currentStep++ }, strings = strings)
+                    11 -> LastWaitStep(onNext = { currentStep++ }, strings = strings)
+                    12 -> CompleteStep(onFinish = { level ->
+                        if (level == strings.optionIncreased) currentStep = 1
+                        else {
+                            viewModel.logUrgeSession(300 - timerSeconds, "Multiple", level != strings.optionIncreased, level)
+                            onBack()
+                        }
+                    }, strings = strings)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StopStep(onNext: () -> Unit, strings: AppStrings) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(strings.stopTitle, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(strings.stopDesc, textAlign = TextAlign.Center, style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(48.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(64.dp), shape = RoundedCornerShape(20.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E3A8A))) { Text(strings.readyButton, fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+    }
+}
+
+@Composable
+fun BreathingStep(onNext: () -> Unit, strings: AppStrings) {
+    var phase by remember { mutableStateOf(strings.breatheIn) }
+    val scale = remember { Animatable(1f) }
+    LaunchedEffect(Unit) {
+        repeat(4) {
+            phase = strings.breatheIn
+            scale.animateTo(1.5f, tween(4000))
+            phase = strings.hold
+            delay(4000)
+            phase = strings.breatheOut
+            scale.animateTo(1f, tween(6000))
+        }
+        onNext()
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(strings.breathingTitle, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(64.dp))
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(250.dp)) {
+            Box(modifier = Modifier.size(150.dp).scale(scale.value).clip(CircleShape).background(Color(0xFFBFDBFE)))
+            Text(phase, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color(0xFF1E3A8A))
+        }
+    }
+}
+
+@Composable
+fun MotivationStep(streak: Int, onNext: () -> Unit, strings: AppStrings) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(strings.motivationTitle, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(24.dp))
+        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(4.dp)) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(strings.motivationDesc, style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(String.format(strings.streakMessage, streak), fontWeight = FontWeight.Black, color = Color(0xFF16A34A), fontSize = 24.sp)
+                Text(strings.halChharben, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(strings.nextStep) }
+    }
+}
+
+@Composable
+fun QuranHadithStep(onNext: () -> Unit, strings: AppStrings) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val content = RecoveryContent.quranHadith.random()
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(48.dp), tint = Color(0xFFF59E0B))
+        Spacer(modifier = Modifier.height(24.dp))
+        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(content.content, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("— ${content.source}", style = MaterialTheme.typography.labelLarge, color = Color.Gray)
+                Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.End) {
+                    IconButton(onClick = {
+                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("Recovery Motivation", "${content.content} — ${content.source}")
+                        clipboard.setPrimaryClip(clip)
+                    }) { Icon(Icons.Default.EditNote, contentDescription = "Copy") }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(strings.nextStep) }
+    }
+}
+
+@Composable
+fun DuaStep(onNext: () -> Unit, strings: AppStrings) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val dua = RecoveryContent.duas[0]
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Dua", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(24.dp))
+        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(dua.arabic, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(dua.pronunciation, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, color = Color.Gray)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(dua.translation, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+                Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.End) {
+                    IconButton(onClick = {
+                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("Dua", "${dua.arabic}\n${dua.translation}")
+                        clipboard.setPrimaryClip(clip)
+                    }) { Icon(Icons.Default.EditNote, contentDescription = "Copy") }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(strings.nextStep) }
+    }
+}
+
+@Composable
+fun WaterStep(onNext: () -> Unit, strings: AppStrings) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Icons.Default.LocalDrink, null, modifier = Modifier.size(100.dp), tint = Color(0xFF3B82F6))
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(strings.drinkWaterTitle, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(48.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(64.dp)) { Text(strings.drankWaterButton) }
+    }
+}
+
+@Composable
+fun WalkStep(onNext: () -> Unit, strings: AppStrings) {
+    var walkSeconds by remember { mutableIntStateOf(300) }
+    LaunchedEffect(Unit) {
+        while (walkSeconds > 0) {
+            delay(1000)
+            walkSeconds--
+        }
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Icons.Default.DirectionsWalk, null, modifier = Modifier.size(100.dp), tint = Color(0xFF10B981))
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(strings.walkTitle, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(String.format("%02d:%02d", walkSeconds / 60, walkSeconds % 60), style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Black)
+        Spacer(modifier = Modifier.height(48.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(64.dp)) { Text(strings.finishedWalkButton) }
+    }
+}
+
+@Composable
+fun EnvironmentStep(onNext: () -> Unit, strings: AppStrings) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(strings.aloneQuestion, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(24.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Button(onClick = onNext, modifier = Modifier.weight(1f).height(64.dp)) { Text("Yes") }
+            Button(onClick = onNext, modifier = Modifier.weight(1f).height(64.dp)) { Text("No") }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(strings.changeEnvDesc, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+fun TriggerStep(onNext: () -> Unit, strings: AppStrings) {
+    var selectedTriggers by remember { mutableStateOf(setOf<String>()) }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(strings.triggerTitle, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(24.dp))
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.height(300.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(RecoveryContent.triggers) { trigger ->
+                FilterChip(selected = selectedTriggers.contains(trigger), onClick = { if (selectedTriggers.contains(trigger)) selectedTriggers -= trigger else selectedTriggers += trigger }, label = { Text(trigger) })
+            }
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(strings.nextStep) }
+    }
+}
+
+@Composable
+fun JournalStep(onNext: () -> Unit, strings: AppStrings) {
+    var text by remember { mutableStateOf("") }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(strings.journalTitle, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(value = text, onValueChange = { text = it }, modifier = Modifier.fillMaxWidth().height(200.dp), placeholder = { Text(strings.journalHint) }, shape = RoundedCornerShape(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(strings.nextStep) }
+    }
+}
+
+@Composable
+fun LastWaitStep(onNext: () -> Unit, strings: AppStrings) {
+    var waitTimer by remember { mutableIntStateOf(60) }
+    LaunchedEffect(Unit) {
+        while (waitTimer > 0) {
+            delay(1000)
+            waitTimer--
+        }
+        onNext()
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(strings.stayWithUs, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
+        Spacer(modifier = Modifier.height(24.dp))
+        CircularProgressIndicator(progress = waitTimer / 60f, modifier = Modifier.size(100.dp), strokeWidth = 8.dp)
+        Spacer(modifier = Modifier.height(24.dp))
+        Text("$waitTimer", style = MaterialTheme.typography.displayMedium)
+    }
+}
+
+@Composable
+fun CompleteStep(onFinish: (String) -> Unit, strings: AppStrings) {
+    val options = listOf(strings.optionFullyGone, strings.optionDecreased, strings.optionSmallUrge, strings.optionSame, strings.optionIncreased)
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(strings.sessionCompleteTitle, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black, color = Color(0xFF16A34A))
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(strings.proudMessage, textAlign = TextAlign.Center)
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(strings.howFeelingNow, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+        options.forEach { option ->
+            OutlinedButton(onClick = { onFinish(option) }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp)) { Text(option) }
         }
     }
 }
